@@ -1,0 +1,86 @@
+.material-symbols-rounded {
+  font-variation-settings:
+  'FILL' 1,
+  'wght' 400,
+  'GRAD' 200,
+  'opsz' 24
+}
+
+.btnContainer{
+    display: flex;
+    gap: 5px;
+    flex-flow: row wrap;
+    justify-content: space-between;
+    align-items: center;
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 2em;
+    padding: .1em 0em .1em 1em;
+    font-weight: 400;
+    width: 25%;
+    font-style: normal;
+    transition:all 100ms ease-in-out;
+    margin-bottom: 20px;
+}
+
+.btnContainer button, .btnContainer input[type="number"]{
+    color: inherit;
+    font-family: "Varela Round", sans-serif;
+    cursor: pointer;
+    background: inherit;
+    font-size: 1.5em;
+    border: none;
+    font-weight: 600;
+    max-width: 80%;
+}
+
+#join_room input[type="number"]{
+    cursor: text;
+}
+
+#join_room input[type="number"]::placeholder{
+    color: var(--secondary-text);
+}
+
+.btnContainer .icon{
+    font-size: 1.8em;
+    padding: .2em;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+#create_room{
+    background: var(--primary-button-background);
+    color: var(--primary-text);
+}
+
+#join_room{
+    background: var(--secondary-button-background);
+    color: var(--secondary-text);
+}
+
+
+#create_room:active {
+    border: 2px solid var(--primary-button-background);
+    background: var(--primary-background);
+    color: var(--primary-button-background);
+}
+
+#join_room:has(input:focus) {
+  border: 2px solid var(--secondary-button-background);
+  background: var(--secondary-background);
+  color: var(--secondary-button-background);
+}
+
+
+@media screen and (max-width: 980px) {
+    .btnContainer{
+        width: 30%;
+    }
+}
+
+@media screen and (max-width: 830px) {
+    .btnContainer{
+        width: 35%;
+    }
+}

@@ -1,0 +1,47 @@
+:root{
+    --primary-background: #0d0c0f;
+    --secondary-background: #1d1d1f;
+    --placeholder-text: #1e202e;
+    --primary-button-background: #d7d0fc;
+    --primary-icon-background: #f0edff;
+    --primary-text: #1c1b20;
+    --secondary-button-background: #ffecba;
+    --secondary-icon-background: #fff4d5;
+    --secondary-text: #2d2e2b;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+}
+
+*:focus {
+    outline: none;
+}
+
+input[type='number'] {
+    -moz-appearance:textfield;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+}
+
+.container{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-flow: column;
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    background: var(--primary-background);
+}
