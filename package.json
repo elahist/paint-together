@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "name": "paint-together",
   "version": "1.0.0",
   "description": "A collaborative multiplayer pixel art game",
@@ -18,7 +19,9 @@
   },
   "homepage": "https://github.com/elahist/paint-together#readme",
   "dependencies": {
+    "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "mongoose": "^8.19.0",
     "socket.io": "^4.8.1"
   }
 }
