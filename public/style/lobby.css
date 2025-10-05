@@ -17,7 +17,7 @@
     border-radius: 2em;
     padding: .1em 0em .1em 1em;
     font-weight: 400;
-    width: 25%;
+    width: 18%;
     font-style: normal;
     transition:all 100ms ease-in-out;
     margin-bottom: 20px;
@@ -72,6 +72,11 @@
   color: var(--secondary-button-background);
 }
 
+@media screen and (max-width: 1370px) {
+    .btnContainer{
+        width: 25%;
+    }
+}
 
 @media screen and (max-width: 980px) {
     .btnContainer{
@@ -82,5 +87,11 @@
 @media screen and (max-width: 830px) {
     .btnContainer{
         width: 35%;
+    }
+}
+
+@media screen and (max-width: 700px) {
+    .btnContainer{
+        width: 50%;
     }
 }
