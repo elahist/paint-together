@@ -1,29 +1,30 @@
 {
-  "type": "module",
-  "name": "paint-together",
-  "version": "1.0.0",
-  "description": "A collaborative multiplayer pixel art game",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/elahist/paint-together.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/elahist/paint-together/issues"
-  },
-  "homepage": "https://github.com/elahist/paint-together#readme",
-  "dependencies": {
-    "crypto": "^1.0.1",
-    "dotenv": "^17.2.3",
-    "express": "^5.1.0",
-    "mongoose": "^8.19.0",
-    "socket.io": "^4.8.1",
-    "uuid": "^13.0.0"
-  }
+    "type": "module",
+    "name": "paint-together",
+    "version": "1.0.0",
+    "description": "A collaborative multiplayer pixel art game",
+    "main": "src/server.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node src/server.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/elahist/paint-together.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/elahist/paint-together/issues"
+    },
+    "homepage": "https://github.com/elahist/paint-together#readme",
+    "dependencies": {
+        "crypto": "^1.0.1",
+        "dotenv": "^17.2.3",
+        "express": "^5.1.0",
+        "mongoose": "^8.19.0",
+        "socket.io": "^4.8.1",
+        "uuid": "^13.0.0"
+    }
 }
