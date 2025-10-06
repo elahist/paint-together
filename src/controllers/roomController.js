@@ -1,5 +1,6 @@
 import { Room } from "../schema/roomSchema.js";
 import { palette } from "../../const/palette.js";
+import crypto from "crypto";
 
 // generate a unique 4 digit room ID
 async function generateRoomID() {
@@ -24,6 +25,7 @@ export async function createRoom(req, res) {
 
         const roomID = await generateRoomID();
         const creatorIP = req.ip;
+        const creatorToken = crypto.randomUUID(); // unique per room
 
         const room = new Room({
             roomID,
@@ -32,7 +34,8 @@ export async function createRoom(req, res) {
             grid_height: gridHeight,
             grid_width: gridWidth,
             grid: blankGrid,
-            creator: creatorIP,
+            creatorIP,
+            creatorToken,
             users: [], // will append ip once creator joins
             created_at: new Date(),
             updated_at: new Date(),
@@ -40,9 +43,10 @@ export async function createRoom(req, res) {
         });
 
         await room.save();
-        res.status(200).json({ roomID });
+        // send the token to creator only
+        res.status(200).json({ roomID, creatorToken });
     } catch (err) {
-        console.error("Error creating room:", err);
+        console.error("error creating room:", err);
         res.status(500).json({ error: "Failed to create room" });
     }
 }
