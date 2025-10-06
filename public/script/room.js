@@ -52,7 +52,7 @@ socket.on("init", (room) => {
     console.log(`available: ${room.is_available}`);
 
     cfg.read_only = !room.is_available;
-    setUI(room.is_available);
+    setUI(room.is_available, room.is_owner);
     displayUsers(room.userData);
     init();
 });
@@ -78,7 +78,7 @@ socket.on("roomClosed", () => {
 
 function displayUsers(userData) {
     const infoDiv = document.querySelector(".info");
-    infoDiv.querySelector(".user-pill").forEach((user) => user.remove());
+    infoDiv.querySelectorAll(".user-pill").forEach((user) => user.remove());
 
     Object.entries(userData).forEach(([id, { nickname, color }]) => {
         const span = document.createElement("span");
@@ -91,11 +91,12 @@ function displayUsers(userData) {
     });
 }
 
-function setUI(isAvailable) {
+function setUI(isAvailable, isCreator = false) {
     document.querySelector(".controls").style.display = isAvailable
         ? "flex"
         : "none";
-    closeBtn.style.display = isAvailable ? "flex" : "none";
+
+    closeBtn.style.display = isAvailable && isCreator ? "flex" : "none";
 
     const canvas = document.querySelector("canvas");
     canvas.style.cursor = isAvailable ? "crosshair" : "not-allowed";
