@@ -12,6 +12,8 @@
     --secondary-button-background: #ffecba;
     --secondary-icon-background: #fff4d5;
     --secondary-text: #2d2e2b;
+    --danger-background: #f77069;
+    --danger-text: #e3c3b6;
 }
 
 * {

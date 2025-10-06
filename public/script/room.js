@@ -4,6 +4,8 @@ let canvas = document.querySelector("canvas");
 let ctx = canvas.getContext("2d");
 ctx.imageSmoothingEnabled = false; // useful for pixel art
 
+let closeBtn = document.getElementById("close_canvas");
+
 // configs
 let cfg = {
     canvas_height: 550,
@@ -12,11 +14,11 @@ let cfg = {
     grid_width: 30,
     grid: [],
     current_color: palette.cyan_dark,
+    read_only: false,
 };
 
 // extract room ID from url: /room/8992
 const roomID = window.location.pathname.split("/")[2];
-
 const socket = io();
 
 socket.on("connect", () => {
@@ -27,8 +29,16 @@ socket.on("error", (error) => {
     console.error("an error occured:", error);
 });
 
+const creatorToken = localStorage.getItem(`creatorToken-${roomID}`);
+// create one if client ID doesn't exist
+let clientID = localStorage.getItem(`paintClientID`);
+if (!clientID) {
+    clientID = crypto.randomUUID();
+    localStorage.setItem(`paintClientID`, clientID);
+}
+
 // tell server we joined the room
-socket.emit("joinRoom", roomID);
+socket.emit("joinRoom", { roomID, creatorToken, clientID });
 
 socket.on("init", (room) => {
     cfg.canvas_width = room.canvas_width;
@@ -36,7 +46,14 @@ socket.on("init", (room) => {
     cfg.grid_height = room.grid_height;
     cfg.grid_width = room.grid_width;
     cfg.grid = room.grid;
+
     document.getElementById("room_id").innerText = roomID;
+    console.log(`creator: ${room.is_owner}`);
+    console.log(`available: ${room.is_available}`);
+
+    cfg.read_only = !room.is_available;
+    setUI(room.is_available);
+    displayUsers(room.userData);
     init();
 });
 
@@ -45,19 +62,44 @@ socket.on("drawPixel", ({ x, y, color }) => {
     drawPixel(x, y, color);
 });
 
+// add and remove users (only for active rooms)
 socket.on("updateUsers", (userData) => {
-    const infoDiv = document.querySelector(".info");
-    infoDiv.querySelectorAll(".user-pill").forEach((p) => p.remove());
+    displayUsers(userData);
+});
 
-    Object.entries(userData).forEach(([socketID, { nickname, color }]) => {
+closeBtn.addEventListener("dblclick", () => {
+    socket.emit("closeRoom", { roomID, creatorToken });
+});
+
+socket.on("roomClosed", () => {
+    cfg.read_only = true;
+    setUI(false);
+});
+
+function displayUsers(userData) {
+    const infoDiv = document.querySelector(".info");
+    infoDiv.querySelector(".user-pill").forEach((user) => user.remove());
+
+    Object.entries(userData).forEach(([id, { nickname, color }]) => {
         const span = document.createElement("span");
         span.className = "pill user-pill";
         span.style.backgroundColor = color;
-        span.id = `user-${socketID}`;
-        span.innerHTML = `<span class="material-symbols-rounded">person</span><span>${nickname}</span>`;
+        span.id = `user-${id}`;
+        span.style.border = `2px solid ${color}`;
+        span.innerHTML = `<span class="material-symbols-rounded">person</span><span>${nickname}</span>`; // accessibility
         infoDiv.appendChild(span);
     });
-});
+}
+
+function setUI(isAvailable) {
+    document.querySelector(".controls").style.display = isAvailable
+        ? "flex"
+        : "none";
+    closeBtn.style.display = isAvailable ? "flex" : "none";
+
+    const canvas = document.querySelector("canvas");
+    canvas.style.cursor = isAvailable ? "crosshair" : "not-allowed";
+}
 
 function drawPixel(x, y, color) {
     let cellWidth = cfg.canvas_width / cfg.grid_width;
@@ -71,6 +113,8 @@ function drawPixel(x, y, color) {
 }
 
 function paintCell(e) {
+    if (cfg.read_only) return;
+
     // mouse co-ords INSIDE the canvas at (0,0)
     let rect = canvas.getBoundingClientRect();
     let x = e.clientX - rect.left;
@@ -101,7 +145,7 @@ function init() {
             drawPixel(w, h, cfg.grid[w][h]);
         }
     }
-
+    if (cfg.read_only) return;
     // draw buttons
     for (let [name, color] of Object.entries(palette)) {
         let btn = document.createElement("button");

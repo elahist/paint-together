@@ -38,10 +38,26 @@ canvas {
     flex-flow: row wrap;
     justify-content: center;
     align-items: center;
-    padding: 0em 0.5em;
+    padding: 0 .5em 0 .2em;
+    text-transform: lowercase;
+    transition: all 200ms ease-in-out;
 }
 
 .id_container {
     background: var(--primary-button-background);
     color: var(--primary-text);
+    border: 2px solid var(--primary-button-background);
+}
+
+#close_canvas {
+    display: none;
+    background: var(--danger-background);
+    color: var(--primary-background);
+    border: 2px solid var(--danger-background);
+    cursor: pointer;
+}
+
+#close_canvas:hover {
+    background: var(--primary-background);
+    color: var(--danger-background);
 }
