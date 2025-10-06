@@ -15,9 +15,11 @@ async function generateRoomID() {
 
 export async function createRoom(req, res) {
     try {
-        // not letting user configure canvas for now
-        const gridWidth = 30,
-            gridHeight = 30;
+        const { row = 30, col = 30 } = req.body;
+        // validating input 5-100
+        const gridWidth = Math.min(Math.max(Number(col), 5), 100);
+        const gridHeight = Math.min(Math.max(Number(row), 5), 100);
+
         // blank grid
         const blankGrid = Array.from({ length: gridWidth }, () =>
             Array(gridHeight).fill(palette.white)

@@ -1,0 +1,13 @@
+h1 {
+    font-size: 2rem;
+    text-align: center;
+    font-family: "Varela Round", sans-serif;
+    color: var(--primary-button-background);
+}
+
+p {
+    text-align: center;
+    font-family: "Varela Round", sans-serif;
+    font-size: 1.5rem;
+    color: var(--secondary-button-background);
+}

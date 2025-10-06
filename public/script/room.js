@@ -27,6 +27,7 @@ socket.on("connect", () => {
 
 socket.on("error", (error) => {
     console.error("an error occured:", error);
+    window.location.href = `/error.html?message=${encodeURIComponent(error)}`;
 });
 
 const creatorToken = localStorage.getItem(`creatorToken-${roomID}`);

@@ -27,12 +27,18 @@
     max-width: 80%;
 }
 
-#join_room input[type="number"] {
+#join_room input[type="number"],
+.dimensions input[type="number"] {
     cursor: text;
 }
 
-#join_room input[type="number"]::placeholder {
+#join_room input[type="number"]::placeholder,
+.dimensions input[type="number"]::placeholder {
     color: var(--secondary-text);
+}
+
+.dimensions {
+    margin-bottom: 0em;
 }
 
 .btnContainer .icon {
@@ -52,6 +58,11 @@
     color: var(--secondary-text);
 }
 
+.dimensions {
+    background: var(--primary-button-background);
+    color: var(--primary-text);
+}
+
 #create_room:active {
     border: 2px solid var(--primary-button-background);
     background: var(--primary-background);
@@ -62,6 +73,12 @@
     border: 2px solid var(--secondary-button-background);
     background: var(--secondary-background);
     color: var(--secondary-button-background);
+}
+
+.dimensions:has(input:focus) {
+    border: 2px solid var(--primary-button-background);
+    background: var(--primary-background);
+    color: var(--primary-button-background);
 }
 
 @media screen and (max-width: 1370px) {
@@ -85,5 +102,26 @@
 @media screen and (max-width: 700px) {
     .btnContainer {
         width: 50%;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    .btnContainer {
+        width: 70%;
+    }
+}
+
+@media screen and (max-width: 370px) {
+    .btnContainer {
+        width: 95%;
+        font-size: 1em;
+        gap: 0;
+    }
+    .btnContainer .icon {
+        font-size: 1.5em;
+    }
+    .btnContainer button,
+    .btnContainer input[type="number"] {
+        font-size: 1em;
     }
 }
