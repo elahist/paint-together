@@ -7,10 +7,11 @@ const roomSchema = new mongoose.Schema({
     grid_height: Number,
     grid_width: Number,
     grid: [[String]],
+    creator: String,
     users: [String],
     created_at: {type: Date, default: Date.now},
     updated_at: {type: Date, default: Date.now},
-    available_at: {type: Date, default: Date.now}
+    available_at: {type: Date, default: Date.now, required: false} 
 })
 
 export const Room = mongoose.model("Room", roomSchema);
