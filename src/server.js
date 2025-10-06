@@ -19,7 +19,12 @@ import { palette } from "../const/palette.js";
 
 const app = express();
 const httpServer = createServer(app);
-const io = new Server(httpServer);
+const io = new Server(httpServer, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"],
+    },
+});
 
 // serve client
 app.use(express.json());
@@ -29,6 +34,10 @@ app.use("/api", APIRoutes);
 app.use("/", viewRoutes);
 
 connectDB();
+
+// rate limiter
+const lastDrawTime = new Map();
+const THROTTLE_DELAY_MS = 100;
 
 const roomCache = new Map(); // Map<roomID, { grid, lastSavedGrid, isAvailable, lastUpdate, users, userData: {}, isSaving }>
 
@@ -104,6 +113,11 @@ io.on("connection", (socket) => {
     // sync painting
     socket.on("drawPixel", async ({ roomID, x, y, color }) => {
         try {
+            const now = Date.now();
+            const lastDraw = lastDrawTime.get(socket.id) || 0;
+            if (now - lastDraw < THROTTLE_DELAY_MS) return;
+            lastDrawTime.set(socket.id, now);
+
             const validColors = Object.values(palette);
             if (!validColors.includes(color))
                 return socket.emit("error", "Invalid color");
