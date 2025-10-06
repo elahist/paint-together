@@ -1,7 +1,7 @@
 import { palette } from "../../const/palette.js";
 
-let canvas = document.querySelector('canvas');
-let ctx = canvas.getContext('2d');
+let canvas = document.querySelector("canvas");
+let ctx = canvas.getContext("2d");
 ctx.imageSmoothingEnabled = false; // useful for pixel art
 
 // configs
@@ -11,16 +11,55 @@ let cfg = {
     grid_height: 30,
     grid_width: 30,
     grid: [],
-    current_color: palette.cyan_dark
-}
+    current_color: palette.cyan_dark,
+};
 
-const socket = io(location.href);
-socket.on("init", (serverGrid) => {
-    cfg.grid = serverGrid;
+// extract room ID from url: /room/8992
+const roomID = window.location.pathname.split("/")[2];
+
+const socket = io();
+
+socket.on("connect", () => {
+    console.log("connected to socket server:", socket.id);
+});
+
+socket.on("error", (error) => {
+    console.error("an error occured:", error);
+});
+
+// tell server we joined the room
+socket.emit("joinRoom", roomID);
+
+socket.on("init", (room) => {
+    cfg.canvas_width = room.canvas_width;
+    cfg.canvas_height = room.canvas_height;
+    cfg.grid_height = room.grid_height;
+    cfg.grid_width = room.grid_width;
+    cfg.grid = room.grid;
+    document.getElementById("room_id").innerText = roomID;
     init();
 });
 
-function drawPixel(x, y, color){
+// reflect everyone else's drawing
+socket.on("drawPixel", ({ x, y, color }) => {
+    drawPixel(x, y, color);
+});
+
+socket.on("updateUsers", (userData) => {
+    const infoDiv = document.querySelector(".info");
+    infoDiv.querySelectorAll(".user-pill").forEach((p) => p.remove());
+
+    Object.entries(userData).forEach(([socketID, { nickname, color }]) => {
+        const span = document.createElement("span");
+        span.className = "pill user-pill";
+        span.style.backgroundColor = color;
+        span.id = `user-${socketID}`;
+        span.innerHTML = `<span class="material-symbols-rounded">person</span><span>${nickname}</span>`;
+        infoDiv.appendChild(span);
+    });
+});
+
+function drawPixel(x, y, color) {
     let cellWidth = cfg.canvas_width / cfg.grid_width;
     let cellHeight = cfg.canvas_height / cfg.grid_height;
 
@@ -31,64 +70,65 @@ function drawPixel(x, y, color){
     cfg.grid[x][y] = color;
 }
 
-function paintCell(e){
+function paintCell(e) {
     // mouse co-ords INSIDE the canvas at (0,0)
     let rect = canvas.getBoundingClientRect();
     let x = e.clientX - rect.left;
     let y = e.clientY - rect.top;
-    
+
     let cellWidth = cfg.canvas_width / cfg.grid_width;
     let cellHeight = cfg.canvas_height / cfg.grid_height;
 
     // cell co-ords based on mouse co-ords
     let w = Math.floor(x / cellWidth);
     let h = Math.floor(y / cellHeight);
-    
-    // erase if it's a right click
-    if(e.buttons === 2) return drawPixel(w, h, palette.white);
 
-    drawPixel(w, h, cfg.current_color)
+    // erase if it's a right click
+    let color = e.buttons === 2 ? palette.white : cfg.current_color;
+
+    drawPixel(w, h, color);
+
+    // let everyone else know
+    socket.emit("drawPixel", { roomID, x: w, y: h, color });
 }
 
-function init(){
+function init() {
     canvas.height = cfg.canvas_height;
     canvas.width = cfg.canvas_width;
-    
     // draw blank grid
-    for(let w = 0; w < cfg.grid_width; w++){
-        cfg.grid[w] = [];
-        for(let h = 0; h < cfg.grid_height; h++){
-            drawPixel(w, h, palette.white);
+    for (let w = 0; w < cfg.grid_width; w++) {
+        for (let h = 0; h < cfg.grid_height; h++) {
+            drawPixel(w, h, cfg.grid[w][h]);
         }
     }
 
     // draw buttons
-    for(let [name, color] of Object.entries(palette)){
+    for (let [name, color] of Object.entries(palette)) {
         let btn = document.createElement("button");
         btn.title = name; // accessibility
         btn.style.backgroundColor = color;
         btn.dataset.color = color;
-        btn.addEventListener("click", (e)=>{
+        btn.addEventListener("click", (e) => {
             cfg.current_color = e.target.dataset.color;
-        })
+        });
         document.querySelector(".controls").appendChild(btn);
-    }    
+    }
 }
 
 // for click-and-drag painting
 let isDrawing = false;
 
-canvas.addEventListener("mousedown", (e)=>{
+canvas.addEventListener("mousedown", (e) => {
     isDrawing = true;
     paintCell(e);
 });
 
-canvas.addEventListener("mousemove", (e)=>{
-    if(isDrawing) paintCell(e);
+canvas.addEventListener("mousemove", (e) => {
+    if (isDrawing) paintCell(e);
 });
 
 // keeps redrawing when we leave and re-enter the canvas
-document.addEventListener("mouseup", (e)=>{
+document.addEventListener("mouseup", (e) => {
     isDrawing = false;
 });
 
@@ -98,6 +138,4 @@ document.addEventListener("mouseup", (e)=>{
 // });
 
 // disable ctxmenu because it should erase
-canvas.addEventListener('contextmenu', event => event.preventDefault());
-
-init();
+canvas.addEventListener("contextmenu", (event) => event.preventDefault());

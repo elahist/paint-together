@@ -4,13 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Paint Together</title>
-    <link rel="stylesheet" href="style/defaults.css">
-    <link rel="stylesheet" href="style/room.css">
+    <link rel="stylesheet" href="/style/defaults.css">
+    <link rel="stylesheet" href="/style/room.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js" defer></script>
-    <script src="script/room.js" defer type="module"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+    <script src="/script/room.js" defer type="module"></script>
 </head>
 <body>
     <div class="container">
+        <div class="info">
+            <span class="pill id_container"><span class="material-symbols-rounded">tag</span><span id="room_id"></span></span>
+        </div>
         <canvas></canvas>
         <div class="controls">
         </div>

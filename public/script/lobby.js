@@ -10,7 +10,7 @@ createBtn.addEventListener("click", async () => {
     const res = await fetch("/api/room", { method: "POST" });
     if (!res.ok) throw new Error("Failed to create room");
     const data = await res.json();
-    window.location.href = `/room.html?room=${data.roomID}`;
+    window.location.href = `/room/${data.roomID}`;
   } catch (err) {
     console.error(err);
     window.location.href = `/error.html?type=server_error`;
@@ -38,5 +38,5 @@ joinBtn.addEventListener("click", () => {
     createBtn.style.pointerEvents = "auto";
     createBtn.style.opacity = "1";
   // redirect directly
-  window.location.href = `/room.html?room=${roomID}`;
+  window.location.href = `/room/${roomID}`;
 });
