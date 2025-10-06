@@ -49,6 +49,6 @@ export async function createRoom(req, res) {
         res.status(200).json({ roomID, creatorToken });
     } catch (err) {
         console.error("error creating room:", err);
-        res.status(500).json({ error: "Failed to create room" });
+        res.status(500).json({ error: `failed to create room: ${err.message}` });
     }
 }
