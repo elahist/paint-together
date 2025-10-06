@@ -36,6 +36,7 @@ app.use("/", viewRoutes);
 connectDB();
 
 // rate limiter
+const ratelimit = false;
 const lastDrawTime = new Map();
 const THROTTLE_DELAY_MS = 100;
 
@@ -113,10 +114,12 @@ io.on("connection", (socket) => {
     // sync painting
     socket.on("drawPixel", async ({ roomID, x, y, color }) => {
         try {
-            const now = Date.now();
-            const lastDraw = lastDrawTime.get(socket.id) || 0;
-            if (now - lastDraw < THROTTLE_DELAY_MS) return;
-            lastDrawTime.set(socket.id, now);
+            if (ratelimit) {
+                const now = Date.now();
+                const lastDraw = lastDrawTime.get(socket.id) || 0;
+                if (now - lastDraw < THROTTLE_DELAY_MS) return;
+                lastDrawTime.set(socket.id, now);
+            }
 
             const validColors = Object.values(palette);
             if (!validColors.includes(color))
