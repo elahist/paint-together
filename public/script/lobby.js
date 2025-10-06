@@ -7,7 +7,7 @@ createBtn.addEventListener("click", async () => {
   createBtn.style.opacity = "0.6";
 
   try {
-    const res = await fetch("/api/createRoom", { method: "POST" });
+    const res = await fetch("/api/room", { method: "POST" });
     if (!res.ok) throw new Error("Failed to create room");
     const data = await res.json();
     window.location.href = `/room.html?room=${data.roomID}`;

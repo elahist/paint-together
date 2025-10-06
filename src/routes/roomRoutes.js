@@ -2,7 +2,7 @@ import express from "express";
 import { createRoom } from "../controllers/roomController.js";
 
 const router = express.Router();
-// POST /api/cretaeRoom
-router.post("/createRoom", createRoom);
+// POST /api/room
+router.post("/room", createRoom);
 
 export default router;
