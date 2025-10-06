@@ -125,11 +125,9 @@ export async function roomMaintenance(io, roomCache) {
 
             // if: no users for 1h OR no changes for 3h -> auto-close
             const noUsers = room.users.size === 0;
-            // const inactiveFor3h = now - room.lastUpdate > 3 * 60 * 60 * 1000;
-            const inactiveFor3h = now - room.lastUpdate > 60 * 1000;
-            // const emptyFor1h =
-            //     noUsers && now - room.lastUpdate > 1 * 60 * 60 * 1000;
-            const emptyFor1h = noUsers && now - room.lastUpdate > 30 * 1000;
+            const inactiveFor3h = now - room.lastUpdate > 3 * 60 * 60 * 1000;
+            const emptyFor1h =
+                noUsers && now - room.lastUpdate > 1 * 60 * 60 * 1000;
 
             if (inactiveFor3h || emptyFor1h) {
                 const isEmpty = room.grid.every((col) =>
