@@ -8,9 +8,9 @@ const roomSchema = new mongoose.Schema({
     grid_width: Number,
     grid: [[String]],
     users: [String],
-    creationDate: {type: Date, default: Date.now},
-    lastUpdated: {type: Date, default: Date.now},
-    isAvailable: {type: Boolean, default: true}
+    created_at: {type: Date, default: Date.now},
+    updated_at: {type: Date, default: Date.now},
+    available_at: {type: Date, default: Date.now}
 })
 
 export const Room = mongoose.model("Room", roomSchema);

@@ -31,9 +31,9 @@ export async function createRoom(req, res) {
             grid_width: gridWidth,
             grid: blankGrid,
             users: [], // will append ip once creator joins
-            creationDate: new Date(),
-            lastUpdated: new Date(),
-            isAvailable: true
+            created_at: new Date(),
+            updated_at: new Date(),
+            available_at: new Date()
         });
 
         await room.save();
