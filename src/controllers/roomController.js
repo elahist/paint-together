@@ -5,10 +5,10 @@ import { palette } from "../../const/palette.js";
 async function generateRoomID(){
     let id;
     let exists = true;
-    while(exists) {
+    do {
         id = Math.floor(1000 + Math.random() * 9000); // random 4 digit number
         exists = await Room.findOne({roomID: id});
-    }
+    } while (exists);
     return id;
 }
 
