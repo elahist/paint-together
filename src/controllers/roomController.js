@@ -22,6 +22,7 @@ export async function createRoom(req, res) {
         );
 
         const roomID = await generateRoomID();
+        const creatorIP = req.ip;
         
         const room = new Room({
             roomID,
@@ -30,6 +31,7 @@ export async function createRoom(req, res) {
             grid_height: gridHeight,
             grid_width: gridWidth,
             grid: blankGrid,
+            creator: creatorIP,
             users: [], // will append ip once creator joins
             created_at: new Date(),
             updated_at: new Date(),
