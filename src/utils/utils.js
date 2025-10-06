@@ -1,12 +1,12 @@
-import { nicknames } from "../../const/nicknames";
-import { pastelColors } from "../../const/pastelColors";
+import { nicknames } from "../../const/nicknames.js";
+import { pastelColors } from "../../const/pastelColors.js";
 
 export function getOrCreateCachedRoom(roomID, roomData, roomCache) {
     if (!roomCache.has(roomID)) {
         roomCache.set(roomID, {
-            grid: room.grid,
-            lastSavedGrid: JSON.stringify(room.grid),
-            isAvailable: room.available_at !== null, // null = closed, Date = available
+            grid: roomData.grid,
+            lastSavedGrid: JSON.stringify(roomData.grid),
+            isAvailable: roomData.available_at !== null, // null = closed, Date = available
             lastUpdate: Date.now(),
             users: new Set(), // online users only
             userData: {},
@@ -42,27 +42,26 @@ export function updateOnlineUsers(io, roomID, cachedRoom) {
 }
 
 export async function saveRoomStates() {
-  for (const [roomID, room] of roomCache) {
-    // skip closed rooms
-    if (!room.isAvailable) continue;
+    for (const [roomID, room] of roomCache) {
+        // skip closed rooms
+        if (!room.isAvailable) continue;
 
-    const currentGridStr = JSON.stringify(room.grid);
-    
-    // skip if no changes
-    if (currentGridStr === room.lastSavedGrid) continue;
+        const currentGridStr = JSON.stringify(room.grid);
 
-    try {
-      await Room.updateOne(
-        { roomID: Number(roomID) },
-        { grid: room.grid, updated_at: room.lastUpdate }
-      );
+        // skip if no changes
+        if (currentGridStr === room.lastSavedGrid) continue;
 
-      // save last saved grid
-      room.lastSavedGrid = currentGridStr;
-      console.log(`saved room ${roomID}`);
-    } catch (err) {
-      console.error(`failed to save room ${roomID}:`, err);
+        try {
+            await Room.updateOne(
+                { roomID: Number(roomID) },
+                { grid: room.grid, updated_at: room.lastUpdate }
+            );
+
+            // save last saved grid
+            room.lastSavedGrid = currentGridStr;
+            console.log(`saved room ${roomID}`);
+        } catch (err) {
+            console.error(`failed to save room ${roomID}:`, err);
+        }
     }
-  }
 }
-

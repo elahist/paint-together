@@ -1,27 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paint Together</title>
-    <link rel="stylesheet" href="style/defaults.css">
-    <link rel="stylesheet" href="style/lobby.css">
-    <script src="script/lobby.js" defer type="module"></script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
-</head>
-<body>
-    <div class="container">
-        <div class="btnContainer" id="create_room">
-            <button>create a canvas</button>
-            <span class="icon material-symbols-rounded">add_circle</span>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Paint Together</title>
+        <link rel="stylesheet" href="style/defaults.css" />
+        <link rel="stylesheet" href="style/lobby.css" />
+        <script src="script/lobby.js" defer type="module"></script>
+        <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap"
+            rel="stylesheet"
+        />
+    </head>
+    <body>
+        <div class="container">
+            <div class="btnContainer" id="create_room">
+                <button>create a canvas</button>
+                <span class="icon material-symbols-rounded">add_circle</span>
+            </div>
+            <div class="btnContainer" id="join_room">
+                <input type="number" placeholder="join a canvas" />
+                <span class="icon material-symbols-rounded">group_add</span>
+            </div>
         </div>
-        <div class="btnContainer" id="join_room">
-            <input type="number" placeholder="join a canvas">
-            <span class="icon material-symbols-rounded">group_add</span>
-        </div>
-    </div>
-</body>
+    </body>
 </html>

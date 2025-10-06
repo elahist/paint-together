@@ -1,4 +1,4 @@
-.container .controls{
+.container .controls {
     display: flex;
     gap: 10px;
     flex-flow: row wrap;
@@ -7,18 +7,18 @@
     width: 70%;
 }
 
-.container .controls button{
+.container .controls button {
     height: 30px;
-    width:30px;
+    width: 30px;
     cursor: pointer;
     border: 1px solid black;
 }
 
-canvas{
+canvas {
     background: white;
 }
 
-.container .info{
+.container .info {
     display: flex;
     flex-flow: row wrap;
     justify-content: flex-start;
@@ -27,7 +27,7 @@ canvas{
     gap: 5px;
 }
 
-.info .pill{
+.info .pill {
     cursor: default;
     font-family: "Varela Round", sans-serif;
     font-weight: 400;
@@ -38,10 +38,10 @@ canvas{
     flex-flow: row wrap;
     justify-content: center;
     align-items: center;
-    padding: 0em .5em;
+    padding: 0em 0.5em;
 }
 
-.id_container{
+.id_container {
     background: var(--primary-button-background);
     color: var(--primary-text);
 }

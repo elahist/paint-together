@@ -1,4 +1,4 @@
-.btnContainer{
+.btnContainer {
     display: flex;
     gap: 5px;
     flex-flow: row wrap;
@@ -7,15 +7,16 @@
     border-width: 2px;
     border-style: solid;
     border-radius: 2em;
-    padding: .1em 0em .1em 1em;
+    padding: 0.1em 0em 0.1em 1em;
     font-weight: 400;
     width: 18%;
     font-style: normal;
-    transition:all 100ms ease-in-out;
+    transition: all 100ms ease-in-out;
     margin-bottom: 20px;
 }
 
-.btnContainer button, .btnContainer input[type="number"]{
+.btnContainer button,
+.btnContainer input[type="number"] {
     color: inherit;
     font-family: "Varela Round", sans-serif;
     cursor: pointer;
@@ -26,31 +27,30 @@
     max-width: 80%;
 }
 
-#join_room input[type="number"]{
+#join_room input[type="number"] {
     cursor: text;
 }
 
-#join_room input[type="number"]::placeholder{
+#join_room input[type="number"]::placeholder {
     color: var(--secondary-text);
 }
 
-.btnContainer .icon{
+.btnContainer .icon {
     font-size: 1.8em;
-    padding: .2em;
+    padding: 0.2em;
     border-radius: 50%;
     cursor: pointer;
 }
 
-#create_room{
+#create_room {
     background: var(--primary-button-background);
     color: var(--primary-text);
 }
 
-#join_room{
+#join_room {
     background: var(--secondary-button-background);
     color: var(--secondary-text);
 }
-
 
 #create_room:active {
     border: 2px solid var(--primary-button-background);
@@ -59,31 +59,31 @@
 }
 
 #join_room:has(input:focus) {
-  border: 2px solid var(--secondary-button-background);
-  background: var(--secondary-background);
-  color: var(--secondary-button-background);
+    border: 2px solid var(--secondary-button-background);
+    background: var(--secondary-background);
+    color: var(--secondary-button-background);
 }
 
 @media screen and (max-width: 1370px) {
-    .btnContainer{
+    .btnContainer {
         width: 25%;
     }
 }
 
 @media screen and (max-width: 980px) {
-    .btnContainer{
+    .btnContainer {
         width: 30%;
     }
 }
 
 @media screen and (max-width: 830px) {
-    .btnContainer{
+    .btnContainer {
         width: 35%;
     }
 }
 
 @media screen and (max-width: 700px) {
-    .btnContainer{
+    .btnContainer {
         width: 50%;
     }
 }

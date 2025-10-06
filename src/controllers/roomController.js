@@ -2,28 +2,29 @@ import { Room } from "../schema/roomSchema.js";
 import { palette } from "../../const/palette.js";
 
 // generate a unique 4 digit room ID
-async function generateRoomID(){
+async function generateRoomID() {
     let id;
     let exists = true;
     do {
         id = Math.floor(1000 + Math.random() * 9000); // random 4 digit number
-        exists = await Room.findOne({roomID: id});
+        exists = await Room.findOne({ roomID: id });
     } while (exists);
     return id;
 }
 
 export async function createRoom(req, res) {
-    try{
+    try {
         // not letting user configure canvas for now
-        const gridWidth = 30, gridHeight = 30;
+        const gridWidth = 30,
+            gridHeight = 30;
         // blank grid
-        const blankGrid = Array.from({length: gridWidth}, () =>
+        const blankGrid = Array.from({ length: gridWidth }, () =>
             Array(gridHeight).fill(palette.white)
         );
 
         const roomID = await generateRoomID();
         const creatorIP = req.ip;
-        
+
         const room = new Room({
             roomID,
             canvas_height: 550,
@@ -35,7 +36,7 @@ export async function createRoom(req, res) {
             users: [], // will append ip once creator joins
             created_at: new Date(),
             updated_at: new Date(),
-            available_at: new Date()
+            available_at: new Date(),
         });
 
         await room.save();
@@ -43,5 +44,5 @@ export async function createRoom(req, res) {
     } catch (err) {
         console.error("Error creating room:", err);
         res.status(500).json({ error: "Failed to create room" });
-    }   
+    }
 }

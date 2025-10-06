@@ -10,6 +10,7 @@ import {
     assignNickAndColor,
     getOrCreateCachedRoom,
     saveRoomStates,
+    updateOnlineUsers,
 } from "./utils/utils.js";
 import { setInterval } from "timers/promises";
 
