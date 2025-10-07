@@ -231,7 +231,7 @@ function paintCell(e) {
         clientY = e.clientY;
     }
 
-    // mouse co-ords INSIDE the canvas at (0,0)
+    // co-ords INSIDE the canvas at (0,0)
     let rect = canvas.getBoundingClientRect();
     let x = clientX - rect.left;
     let y = clientY - rect.top;

@@ -11,11 +11,11 @@
     height: 30px;
     width: 30px;
     cursor: pointer;
-    border: 1px solid black;
+    border-radius: 50%;
 }
 
 canvas {
-    /* background: white; */
+    background: white;
     /* padding: 0 0.5em; */
 }
 
@@ -61,4 +61,23 @@ canvas {
 #close_canvas:hover {
     background: var(--primary-background);
     color: var(--danger-background);
+}
+
+@media screen and (max-width: 980px) {
+    .container .controls {
+        width: 80%;
+    }
+
+    .container .controls button {
+        height: 40px;
+        width: 40px;
+    }
+
+    .container .info {
+        width: 90%;
+    }
+
+    .info .pill {
+        font-size: 1em;
+    }
 }
