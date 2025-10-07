@@ -247,6 +247,11 @@ function paintCell(e) {
     let w = Math.floor(x / cellWidth);
     let h = Math.floor(y / cellHeight);
 
+    // bound check
+    if (w < 0 || w >= cfg.grid_width || h < 0 || h >= cfg.grid_height) {
+        return;
+    }
+
     // erase if it's a right click (mouse only)
     let color = e.buttons === 2 ? palette.white : cfg.current_color;
 
