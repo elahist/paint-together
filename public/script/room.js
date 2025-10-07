@@ -15,6 +15,7 @@ let cfg = {
     grid: [],
     current_color: palette.cyan_dark,
     read_only: false,
+    userCursors: {}, // track last drawn position for each user
 };
 
 // extract room ID from url: /room/8992
@@ -72,13 +73,42 @@ socket.on("init", (room) => {
 });
 
 // reflect everyone else's drawing
-socket.on("drawPixel", ({ x, y, color }) => {
+socket.on("drawPixel", ({ x, y, color, userId, userColor }) => {
     drawPixel(x, y, color);
+
+    // update cursor position for this user
+    if (userId && userColor) {
+        cfg.userCursors[userId] = { x, y, color: userColor };
+
+        // redraw canvas with new cursor positions
+        redrawCanvas();
+
+        // auto-remove cursor after 2 seconds of inactivity
+        setTimeout(() => {
+            if (
+                cfg.userCursors[userId] &&
+                cfg.userCursors[userId].x === x &&
+                cfg.userCursors[userId].y === y
+            ) {
+                delete cfg.userCursors[userId];
+                redrawCanvas();
+            }
+        }, 2000);
+    }
 });
 
 // add and remove users (only for active rooms)
 socket.on("updateUsers", (userData) => {
     displayUsers(userData);
+
+    // remove cursors for users who left
+    const activeUserIds = Object.keys(userData);
+    for (const userId in cfg.userCursors) {
+        if (!activeUserIds.includes(userId)) {
+            delete cfg.userCursors[userId];
+        }
+    }
+    redrawCanvas();
 });
 
 closeBtn.addEventListener("dblclick", () => {
@@ -125,6 +155,39 @@ function drawPixel(x, y, color) {
     ctx.strokeStyle = palette.black;
     ctx.strokeRect(x * cellWidth, y * cellHeight, cellWidth, cellHeight);
     cfg.grid[x][y] = color;
+}
+
+function drawCursorHighlights() {
+    let cellWidth = cfg.canvas_width / cfg.grid_width;
+    let cellHeight = cfg.canvas_height / cfg.grid_height;
+
+    for (const [userId, data] of Object.entries(cfg.userCursors)) {
+        const { x, y, color } = data;
+
+        // draw thick colored border around the cell
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 3;
+        ctx.strokeRect(
+            x * cellWidth + 1.5,
+            y * cellHeight + 1.5,
+            cellWidth - 3,
+            cellHeight - 3
+        );
+    }
+
+    // reset line width
+    ctx.lineWidth = 1;
+}
+
+function redrawCanvas() {
+    // redraw all pixels
+    for (let w = 0; w < cfg.grid_width; w++) {
+        for (let h = 0; h < cfg.grid_height; h++) {
+            drawPixel(w, h, cfg.grid[w][h]);
+        }
+    }
+    // draw cursor highlights on top
+    drawCursorHighlights();
 }
 
 function paintCell(e) {

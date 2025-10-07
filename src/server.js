@@ -135,15 +135,25 @@ io.on("connection", (socket) => {
                 y < 0 ||
                 y >= room.grid[0].length
             ) {
-                return socket.emit("error", "Pixel out of bounds");
+                return; // fail silently instead
+                // return socket.emit("error", "Pixel out of bounds");
             }
 
             // update cache
             room.grid[x][y] = color;
             room.lastUpdate = Date.now();
 
-            // send changes to everyone else
-            socket.to(roomID).emit("drawPixel", { x, y, color });
+            // get user's color from userData
+            const userColor = room.userData[socket.id]?.color;
+
+            // send changes to everyone else WITH user info for cursor
+            socket.to(roomID).emit("drawPixel", {
+                x,
+                y,
+                color,
+                userId: socket.id,
+                userColor: userColor,
+            });
         } catch (error) {
             console.error("error in drawPixel:", error);
             socket.emit("error", error.message);
