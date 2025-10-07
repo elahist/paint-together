@@ -31,11 +31,24 @@ socket.on("error", (error) => {
 });
 
 const creatorToken = localStorage.getItem(`creatorToken-${roomID}`);
-// create one if client ID doesn't exist
 let clientID = localStorage.getItem(`paintClientID`);
+// create one if client ID doesn't exist
 if (!clientID) {
-    clientID = crypto.randomUUID();
+    // fallback for browsers that don't support crypto api
+    clientID = crypto.randomUUID ? crypto.randomUUID() : generateUUID();
     localStorage.setItem(`paintClientID`, clientID);
+}
+
+// fallback UUID generator
+function generateUUID() {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+        /[xy]/g,
+        function (c) {
+            const r = (Math.random() * 16) | 0;
+            const v = c === "x" ? r : (r & 0x3) | 0x8;
+            return v.toString(16);
+        }
+    );
 }
 
 // tell server we joined the room
