@@ -45,17 +45,51 @@ export function assignNickAndColor({ socketID, clientID, ip, cachedRoom }) {
     return newUser;
 }
 
-export function getHistoricalUsers(userIPs) {
+export function getHistoricalUsers(users) {
     const userData = {};
 
-    userIPs.forEach((ip, index) => {
+    // deduplicate by clientID (fallback to ip if not available)
+    const uniqueUsers = [];
+    const seenClientIDs = new Set();
+    const seenIPs = new Set();
+
+    users.forEach((user) => {
+        const id = user.clientID || user.ip;
+        if (user.clientID && !seenClientIDs.has(user.clientID)) {
+            seenClientIDs.add(user.clientID);
+            uniqueUsers.push(user);
+        } else if (!user.clientID && !seenIPs.has(user.ip)) {
+            seenIPs.add(user.ip);
+            uniqueUsers.push(user);
+        }
+    });
+
+    const usedNicks = [];
+    const usedColors = [];
+
+    uniqueUsers.forEach((user, index) => {
+        // pick unique nickname
+        const availableNicks = nicknames.filter((n) => !usedNicks.includes(n));
+        const nick = availableNicks.length
+            ? pickRandom(availableNicks)
+            : generateRandomName();
+        usedNicks.push(nick);
+
+        // pick unique color
+        const availableColors = pastelColors.filter(
+            (c) => !usedColors.includes(c)
+        );
+        const color = availableColors.length
+            ? pickRandom(availableColors)
+            : "#DDD";
+        usedColors.push(color);
+
         userData[`historical-${index}`] = {
             socketID: `historical-${index}`,
-            clientID: `historical-${index}`,
-            // ip,
-            nickname: `User${index + 1}`,
-            color: "#DDD",
-            joinedAt: 0,
+            clientID: user.clientID || `historical-${index}`,
+            nickname: nick,
+            color: color,
+            joinedAt: user.joinedAt || 0,
         };
     });
 

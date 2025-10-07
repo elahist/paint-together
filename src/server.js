@@ -106,8 +106,7 @@ io.on("connection", (socket) => {
                 usersToSend = safeUserData(cachedRoom);
             } else {
                 // room is closed: show historical users
-                const userIPs = room.users.map((u) => u.ip);
-                usersToSend = getHistoricalUsers(userIPs);
+                usersToSend = getHistoricalUsers(room.users);
             }
 
             // send data

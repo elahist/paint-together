@@ -270,6 +270,14 @@ function init() {
             drawPixel(w, h, cfg.grid[w][h]);
         }
     }
+
+    resizeCanvas();
+    let resizeTimeout;
+    window.addEventListener("resize", () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(resizeCanvas, 150);
+    });
+
     if (cfg.read_only) return;
     // draw buttons
     for (let [name, color] of Object.entries(palette)) {
@@ -282,14 +290,6 @@ function init() {
         });
         document.querySelector(".controls").appendChild(btn);
     }
-
-    resizeCanvas();
-
-    let resizeTimeout;
-    window.addEventListener("resize", () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(resizeCanvas, 150);
-    });
 }
 
 // for click-and-drag painting
