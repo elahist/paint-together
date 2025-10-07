@@ -190,6 +190,33 @@ function redrawCanvas() {
     drawCursorHighlights();
 }
 
+function resizeCanvas() {
+    const container = canvas.parentElement;
+    const padding = 20;
+    const availableWidth = container.clientWidth - padding * 2;
+    const availableHeight = container.clientHeight - padding * 2;
+
+    const displaySize = Math.min(availableWidth, availableHeight, 550);
+    const dpr = window.devicePixelRatio || 1;
+
+    canvas.width = displaySize * dpr;
+    canvas.height = displaySize * dpr;
+
+    canvas.style.width = displaySize + "px";
+    canvas.style.height = displaySize + "px";
+
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(dpr, dpr);
+
+    cfg.canvas_width = displaySize;
+    cfg.canvas_height = displaySize;
+
+    canvas.style.display = "block";
+    canvas.style.margin = "0 auto";
+
+    redrawCanvas();
+}
+
 function paintCell(e) {
     if (cfg.read_only) return;
 
@@ -246,6 +273,14 @@ function init() {
         });
         document.querySelector(".controls").appendChild(btn);
     }
+
+    resizeCanvas();
+
+    let resizeTimeout;
+    window.addEventListener("resize", () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(resizeCanvas, 150);
+    });
 }
 
 // for click-and-drag painting

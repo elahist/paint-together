@@ -15,7 +15,8 @@
 }
 
 canvas {
-    background: white;
+    /* background: white; */
+    /* padding: 0 0.5em; */
 }
 
 .container .info {
@@ -38,7 +39,7 @@ canvas {
     flex-flow: row wrap;
     justify-content: center;
     align-items: center;
-    padding: 0 .5em 0 .2em;
+    padding: 0 0.5em 0 0.2em;
     text-transform: lowercase;
     transition: all 200ms ease-in-out;
 }
