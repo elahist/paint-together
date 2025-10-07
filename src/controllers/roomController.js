@@ -26,8 +26,13 @@ export async function createRoom(req, res) {
         );
 
         const roomID = await generateRoomID();
-        const creatorIP = req.ip;
         const creatorToken = crypto.randomUUID(); // unique per room
+
+        const creator = {
+            ip: req.ip, // for moderation
+            socketID: null, // for now creator has no socket
+            clientID: null, // client ID is provided when joining room
+        };
 
         const room = new Room({
             roomID,
@@ -36,12 +41,12 @@ export async function createRoom(req, res) {
             grid_height: gridHeight,
             grid_width: gridWidth,
             grid: blankGrid,
-            creatorIP,
+            creator,
             creatorToken,
-            users: [], // will append ip once creator joins
+            users: [], // will append as they join
             created_at: new Date(),
             updated_at: new Date(),
-            available_at: new Date(),
+            is_available: true,
         });
 
         await room.save();
@@ -49,6 +54,8 @@ export async function createRoom(req, res) {
         res.status(200).json({ roomID, creatorToken });
     } catch (err) {
         console.error("error creating room:", err);
-        res.status(500).json({ error: `failed to create room: ${err.message}` });
+        res.status(500).json({
+            error: `failed to create room: ${err.message}`,
+        });
     }
 }
