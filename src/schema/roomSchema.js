@@ -5,6 +5,7 @@ const userSchema = new mongoose.Schema(
         ip: { type: String, required: true },
         socketID: { type: String, default: null },
         clientID: { type: String, default: null },
+        joinedAt: { type: Date, default: Date.now },
     },
     { _id: false }
 );

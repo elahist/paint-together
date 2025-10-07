@@ -6,16 +6,23 @@ import APIRoutes from "./routes/APIRoutes.js";
 import viewRoutes from "./routes/viewRoutes.js";
 import { Room } from "./schema/roomSchema.js";
 import "dotenv/config";
+import { palette } from "../const/palette.js";
+import {
+    getRoom,
+    setPixel,
+    ensureRoom,
+    hasRoom,
+    touchRoom,
+} from "./utils/roomCacheUtils.js";
+import { roomMaintenance, closeRoom } from "./utils/roomMaintenanceUtils.js";
+import { saveRoomNow } from "./utils/roomPersistenceUtils.js";
 import {
     assignNickAndColor,
-    getOrCreateCachedRoom,
-    roomMaintenance,
-    updateOnlineUsers,
-    saveRoomImmediate,
-    closeRoom,
     getHistoricalUsers,
-} from "./utils/utils.js";
-import { palette } from "../const/palette.js";
+    safeUserData,
+    updateOnlineUsers,
+    removeUser,
+} from "./utils/userCacheUtils.js";
 
 const app = express();
 const httpServer = createServer(app);
@@ -40,35 +47,41 @@ const ratelimit = false;
 const lastDrawTime = new Map();
 const THROTTLE_DELAY_MS = 100;
 
-const roomCache = new Map(); // Map<roomID, { grid, lastSavedGrid, isAvailable, lastUpdate, users, userData: {}, isSaving }>
-
-//socket set up
+// socket set up
 io.on("connection", (socket) => {
     socket.on("joinRoom", async ({ roomID, creatorToken, clientID }) => {
         try {
-            roomID = String(roomID);
-            const room = await Room.findOne({ roomID: Number(roomID) });
-            if (!room) return socket.emit("error", "Room not found");
+            roomID = Number(roomID);
+            const room = await Room.findOne({ roomID });
+            if (!room) {
+                console.error(`[socket] room ${roomID} does not exist`);
+                socket.emit("error", "Room does not exist");
+                return;
+            }
 
-            const isClosed = room.available_at === null;
+            const isClosed = !room.is_available;
             socket.join(roomID);
 
             // capture non-duplicate ip of visitor ONLY if room is active
             const ip = socket.handshake.address;
-            if (!room.users.includes(ip) && !isClosed) {
-                room.users.push(ip);
-                await room.save(); // update db immediately
+            const existingUser = room.users.find((u) => u.ip === ip);
+            if (!existingUser && !isClosed) {
+                room.users.push({ ip, socketID: socket.id, clientID });
+                await room.save();
             }
 
             // put room in cache if not already
-            const cachedRoom = getOrCreateCachedRoom(roomID, room, roomCache);
-            cachedRoom.lastUpdate = Date.now();
+            const cachedRoom = ensureRoom(roomID, {
+                grid: room.grid,
+                isAvailable: room.is_available,
+            });
+            touchRoom(roomID);
 
             // if room is active: show online users
             // if room is closed: show historical users
             let usersToSend;
             if (!isClosed) {
-                // remove old socket if same client reconnects
+                // take care of ghost sockets
                 const existingEntry = Object.entries(cachedRoom.userData).find(
                     ([_, data]) => data.clientID === clientID
                 );
@@ -80,14 +93,21 @@ io.on("connection", (socket) => {
 
                 cachedRoom.users.add(socket.id);
 
-                // assign nickname bcz socket.id is too long
-                assignNickAndColor(socket.id, cachedRoom, clientID);
+                // assign nickname and color
+                assignNickAndColor({
+                    socketID: socket.id,
+                    clientID,
+                    ip,
+                    cachedRoom,
+                });
+
                 // send to front end
                 updateOnlineUsers(io, roomID, cachedRoom);
-                usersToSend = cachedRoom.userData;
+                usersToSend = safeUserData(cachedRoom);
             } else {
                 // room is closed: show historical users
-                usersToSend = getHistoricalUsers(room.users);
+                const userIPs = room.users.map((u) => u.ip);
+                usersToSend = getHistoricalUsers(userIPs);
             }
 
             // send data
@@ -104,7 +124,7 @@ io.on("connection", (socket) => {
             });
 
             // save room on user join
-            await saveRoomImmediate(roomID, roomCache);
+            await saveRoomNow(cachedRoom);
         } catch (error) {
             console.error("error joining room:", error);
             socket.emit("error", error.message);
@@ -122,26 +142,30 @@ io.on("connection", (socket) => {
             }
 
             const validColors = Object.values(palette);
-            if (!validColors.includes(color))
-                return socket.emit("error", "Invalid color");
+            if (!validColors.includes(color)) {
+                console.error(`[socket] invalid color: ${color}`);
+                return socket.emit("error", "invalid color");
+            }
 
-            const room = roomCache.get(String(roomID));
-            if (!room || !room.isAvailable) return;
+            const room = getRoom(roomID);
+            if (!room || !room.isAvailable)
+                return console.error(
+                    `[socket] room ${roomID} is not available`
+                );
 
             // bounds checking
             if (
                 x < 0 ||
                 x >= room.grid.length ||
                 y < 0 ||
-                y >= room.grid[0].length
-            ) {
-                return; // fail silently instead
-                // return socket.emit("error", "Pixel out of bounds");
-            }
+                y >= room.grid[0]?.length
+            )
+                return console.error(`[socket] out of bounds: x=${x}, y=${y}`);
 
-            // update cache
-            room.grid[x][y] = color;
-            room.lastUpdate = Date.now();
+            // update pixel in cache
+            const success = setPixel(roomID, x, y, color);
+            if (!success)
+                return console.error(`[socket] setPixel in cache failed`);
 
             // get user's color from userData
             const userColor = room.userData[socket.id]?.color;
@@ -161,16 +185,17 @@ io.on("connection", (socket) => {
     });
 
     socket.on("disconnect", async () => {
-        for (const [roomID, cachedRoom] of roomCache) {
-            if (cachedRoom.users.has(socket.id)) {
-                cachedRoom.users.delete(socket.id);
-                delete cachedRoom.userData[socket.id];
+        // find which room this socket was in
+        for (const roomID of socket.rooms) {
+            if (roomID === socket.id) continue; // skip socket's own room
+
+            const cachedRoom = getRoom(roomID);
+            if (cachedRoom && removeUser(socket.id, cachedRoom)) {
                 updateOnlineUsers(io, roomID, cachedRoom);
                 try {
-                    // save room on user disconnect
-                    await saveRoomImmediate(roomID, roomCache);
+                    await saveRoomNow(cachedRoom);
                 } catch (error) {
-                    console.error("error saving room:", error);
+                    console.error(`error saving room ${roomID}:`, error);
                 }
             }
         }
@@ -178,8 +203,7 @@ io.on("connection", (socket) => {
 
     socket.on("closeRoom", async ({ roomID, creatorToken }) => {
         try {
-            console.log("closing room on request");
-            await closeRoom(roomID, creatorToken, roomCache, io);
+            await closeRoom(roomID, creatorToken, io);
             socket.emit("roomClosed");
         } catch (error) {
             console.error("error closing room:", error);
@@ -188,10 +212,10 @@ io.on("connection", (socket) => {
     });
 });
 
-// 60 sec co-routine for saving room state
+// 60 sec co-routine for maintenance checks
 setInterval(async () => {
     try {
-        await roomMaintenance(io, roomCache);
+        await roomMaintenance(io);
     } catch (err) {
         console.error("maintenance failed:", err);
     }

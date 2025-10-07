@@ -19,7 +19,7 @@ let cfg = {
 };
 
 // extract room ID from url: /room/8992
-const roomID = window.location.pathname.split("/")[2];
+const roomID = Number(window.location.pathname.split("/")[2]);
 const socket = io();
 
 socket.on("connect", () => {
@@ -180,6 +180,10 @@ function drawCursorHighlights() {
 }
 
 function redrawCanvas() {
+    if (!cfg.grid || cfg.grid.length === 0) {
+        console.warn("grid not ready for draw yet");
+        return;
+    }
     // redraw all pixels
     for (let w = 0; w < cfg.grid_width; w++) {
         for (let h = 0; h < cfg.grid_height; h++) {
