@@ -130,10 +130,21 @@ function drawPixel(x, y, color) {
 function paintCell(e) {
     if (cfg.read_only) return;
 
+    let clientX, clientY;
+    if (e.touches && e.touches.length > 0) {
+        // touch event
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+    } else {
+        // mouse event
+        clientX = e.clientX;
+        clientY = e.clientY;
+    }
+
     // mouse co-ords INSIDE the canvas at (0,0)
     let rect = canvas.getBoundingClientRect();
-    let x = e.clientX - rect.left;
-    let y = e.clientY - rect.top;
+    let x = clientX - rect.left;
+    let y = clientY - rect.top;
 
     let cellWidth = cfg.canvas_width / cfg.grid_width;
     let cellHeight = cfg.canvas_height / cfg.grid_height;
@@ -142,7 +153,7 @@ function paintCell(e) {
     let w = Math.floor(x / cellWidth);
     let h = Math.floor(y / cellHeight);
 
-    // erase if it's a right click
+    // erase if it's a right click (mouse only)
     let color = e.buttons === 2 ? palette.white : cfg.current_color;
 
     drawPixel(w, h, color);
@@ -198,3 +209,25 @@ document.addEventListener("mouseup", (e) => {
 
 // disable ctxmenu because it should erase
 canvas.addEventListener("contextmenu", (event) => event.preventDefault());
+
+// touch support for mobile devices
+canvas.addEventListener("touchstart", (e) => {
+    e.preventDefault(); // prevent scrolling/pull down to reload
+    isDrawing = true;
+    paintCell(e);
+});
+
+canvas.addEventListener("touchmove", (e) => {
+    e.preventDefault(); // prevent scrolling
+    if (isDrawing) paintCell(e);
+});
+
+canvas.addEventListener("touchend", (e) => {
+    e.preventDefault();
+    isDrawing = false;
+});
+
+canvas.addEventListener("touchcancel", (e) => {
+    e.preventDefault();
+    isDrawing = false;
+});
