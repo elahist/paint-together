@@ -65,7 +65,7 @@ canvas {
 
 @media screen and (max-width: 980px) {
     .container .controls {
-        width: 80%;
+        width: 90%;
     }
 
     .container .controls button {
@@ -74,7 +74,7 @@ canvas {
     }
 
     .container .info {
-        width: 90%;
+        width: 95%;
     }
 
     .info .pill {
