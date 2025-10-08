@@ -18,28 +18,6 @@ let cfg = {
     userCursors: {}, // track last drawn position for each user
 };
 
-// extract room ID from url: /room/8992
-const roomID = Number(window.location.pathname.split("/")[2]);
-const socket = io();
-
-socket.on("connect", () => {
-    console.log("connected to socket server:", socket.id);
-});
-
-socket.on("error", (error) => {
-    console.error("an error occured:", error);
-    window.location.href = `/error.html?message=${encodeURIComponent(error)}`;
-});
-
-const creatorToken = localStorage.getItem(`creatorToken-${roomID}`);
-let clientID = localStorage.getItem(`paintClientID`);
-// create one if client ID doesn't exist
-if (!clientID) {
-    // fallback for browsers that don't support crypto api
-    clientID = crypto.randomUUID ? crypto.randomUUID() : generateUUID();
-    localStorage.setItem(`paintClientID`, clientID);
-}
-
 // fallback UUID generator
 function generateUUID() {
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
@@ -52,8 +30,33 @@ function generateUUID() {
     );
 }
 
-// tell server we joined the room
-socket.emit("joinRoom", { roomID, creatorToken, clientID });
+// extract room ID from url: /room/8992
+const roomID = Number(window.location.pathname.split("/")[2]);
+const socket = io();
+
+const creatorToken = localStorage.getItem(`creatorToken-${roomID}`);
+let clientID = localStorage.getItem(`paintClientID`);
+// create one if client ID doesn't exist
+if (!clientID) {
+    // fallback for browsers that don't support crypto api
+    clientID = crypto.randomUUID ? crypto.randomUUID() : generateUUID();
+    localStorage.setItem(`paintClientID`, clientID);
+}
+
+socket.on("connect", () => {
+    console.log("connected to socket server:", socket.id);
+    // tell server we joined the room
+    socket.emit("joinRoom", { roomID, creatorToken, clientID });
+});
+
+socket.on("disconnect", (reason) => {
+    console.warn("disconnected from server:", reason);
+});
+
+socket.on("error", (error) => {
+    console.error("an error occured:", error);
+    window.location.href = `/error.html?message=${encodeURIComponent(error)}`;
+});
 
 socket.on("init", (room) => {
     cfg.canvas_width = room.canvas_width;
@@ -261,6 +264,12 @@ function paintCell(e) {
     socket.emit("drawPixel", { roomID, x: w, y: h, color });
 }
 
+let resizeTimeout;
+window.addEventListener("resize", () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(resizeCanvas, 150);
+});
+
 function init() {
     canvas.height = cfg.canvas_height;
     canvas.width = cfg.canvas_width;
@@ -272,24 +281,18 @@ function init() {
     }
 
     resizeCanvas();
-    let resizeTimeout;
-    window.addEventListener("resize", () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(resizeCanvas, 150);
-    });
+}
 
-    if (cfg.read_only) return;
-    // draw buttons
-    for (let [name, color] of Object.entries(palette)) {
-        let btn = document.createElement("button");
-        btn.title = name; // accessibility
-        btn.style.backgroundColor = color;
-        btn.dataset.color = color;
-        btn.addEventListener("click", (e) => {
-            cfg.current_color = e.target.dataset.color;
-        });
-        document.querySelector(".controls").appendChild(btn);
-    }
+// render color buttons once
+for (let [name, color] of Object.entries(palette)) {
+    let btn = document.createElement("button");
+    btn.title = name; // accessibility
+    btn.style.backgroundColor = color;
+    btn.dataset.color = color;
+    btn.addEventListener("click", (e) => {
+        cfg.current_color = e.target.dataset.color;
+    });
+    document.querySelector(".controls").appendChild(btn);
 }
 
 // for click-and-drag painting
