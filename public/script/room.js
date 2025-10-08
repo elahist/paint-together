@@ -6,6 +6,10 @@ ctx.imageSmoothingEnabled = false; // useful for pixel art
 
 let closeBtn = document.getElementById("close_canvas");
 
+let statusPill = document.getElementById("status_pill");
+let statusIcon = document.getElementById("status_icon");
+let statusText = document.getElementById("status_text");
+
 // configs
 let cfg = {
     canvas_height: 550,
@@ -30,6 +34,23 @@ function generateUUID() {
     );
 }
 
+// status pill helper
+function showStatus(text, icon, hideAfter = null) {
+    statusText.innerText = text;
+    statusIcon.innerText = icon;
+    statusPill.style.display = "flex";
+
+    if (hideAfter) {
+        setTimeout(() => {
+            statusPill.style.display = "none";
+        }, hideAfter);
+    }
+}
+
+function hideStatus() {
+    statusPill.style.display = "none";
+}
+
 // extract room ID from url: /room/8992
 const roomID = Number(window.location.pathname.split("/")[2]);
 const socket = io();
@@ -45,12 +66,14 @@ if (!clientID) {
 
 socket.on("connect", () => {
     console.log("connected to socket server:", socket.id);
+    showStatus("reconnected", "wifi", 3000);
     // tell server we joined the room
     socket.emit("joinRoom", { roomID, creatorToken, clientID });
 });
 
 socket.on("disconnect", (reason) => {
     console.warn("disconnected from server:", reason);
+    showStatus("disconnected", "signal_disconnected");
 });
 
 socket.on("error", (error) => {
@@ -70,6 +93,14 @@ socket.on("init", (room) => {
     console.log(`available: ${room.is_available}`);
 
     cfg.read_only = !room.is_available;
+
+    // show closed status if room is not available
+    if (!room.is_available) {
+        showStatus("closed", "block");
+    } else {
+        hideStatus();
+    }
+
     setUI(room.is_available, room.is_owner);
     displayUsers(room.userData);
     init();
@@ -120,6 +151,7 @@ closeBtn.addEventListener("dblclick", () => {
 
 socket.on("roomClosed", () => {
     cfg.read_only = true;
+    showStatus("closed", "block");
     setUI(false);
 });
 
@@ -340,4 +372,14 @@ canvas.addEventListener("touchend", (e) => {
 canvas.addEventListener("touchcancel", (e) => {
     e.preventDefault();
     isDrawing = false;
+});
+
+window.addEventListener("offline", () => {
+    console.warn("Browser went offline");
+    showStatus("disconnected", "signal_disconnected");
+});
+
+window.addEventListener("online", () => {
+    console.log("Browser back online");
+    showStatus("reconnecting", "sync", 2000);
 });

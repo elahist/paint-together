@@ -112,7 +112,8 @@ io.on("connection", (socket) => {
             // send data
             socket.emit("init", {
                 room_id: roomID,
-                grid: room.grid,
+                // cache instead of db because user might join before db is updated
+                grid: cachedRoom.grid,
                 canvas_height: room.canvas_height,
                 canvas_width: room.canvas_width,
                 grid_height: room.grid_height,

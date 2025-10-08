@@ -58,6 +58,13 @@ canvas {
     cursor: pointer;
 }
 
+#status_pill {
+    display: none;
+    background: var(--secondary-button-background);
+    color: var(--secondary-text);
+    border: 2px solid var(--secondary-button-background);
+}
+
 #close_canvas:hover {
     background: var(--primary-background);
     color: var(--danger-background);
