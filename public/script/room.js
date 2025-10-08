@@ -375,11 +375,11 @@ canvas.addEventListener("touchcancel", (e) => {
 });
 
 window.addEventListener("offline", () => {
-    console.warn("Browser went offline");
+    console.warn("browser went offline");
     showStatus("disconnected", "signal_disconnected");
 });
 
 window.addEventListener("online", () => {
-    console.log("Browser back online");
+    console.log("browser back online");
     showStatus("reconnecting", "sync", 2000);
 });
