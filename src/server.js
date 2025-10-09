@@ -25,6 +25,9 @@ import {
 } from "./utils/userCacheUtils.js";
 
 const app = express();
+// behind a trusted proxy (railway)
+app.set("trust proxy", true);
+
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
