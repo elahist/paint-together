@@ -34,20 +34,31 @@ function generateUUID() {
     );
 }
 
+let statusTimeout = null;
 // status pill helper
 function showStatus(text, icon, hideAfter = null) {
     statusText.innerText = text;
     statusIcon.innerText = icon;
     statusPill.style.display = "flex";
 
+    if (statusTimeout) {
+        clearTimeout(statusTimeout);
+        statusTimeout = null;
+    }
+
     if (hideAfter) {
-        setTimeout(() => {
-            statusPill.style.display = "none";
+        statusTimeout = setTimeout(() => {
+            hideStatus();
+            statusTimeout = null;
         }, hideAfter);
     }
 }
 
 function hideStatus() {
+    if (statusTimeout) {
+        clearTimeout(statusTimeout);
+        statusTimeout = null;
+    }
     statusPill.style.display = "none";
 }
 
